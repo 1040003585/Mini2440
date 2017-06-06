@@ -1,0 +1,35 @@
+
+## /ect/exports ##
+/home/wu-being/linux/root_nfs 192.168.*.*(rw,sync,no_root_squash)
+
+/home/wu-being/linux/my_nfs 192.168.*.*(rw,sync,no_root_squash)
+
+/home/wu-being/linux/2.6.32/rootfs_rtm_2440 192.168.*.*(rw,sync,no_root_squash)
+
+
+
+## ÄÚºË2.6.13 ##
+setenv bootcmd "tftp 30008000 uimage;bootm"
+setenv ipaddr 192.168.1.244
+setenv serverip 192.168.1.112
+setenv gatewayip 192.168.1.1
+setenv bootargs noinitrd root=/dev/nfs rw nfsroot=192.168.1.113:/home/wu-being/linux/root_nfs ip=192.168.1.244:192.168.1.114:192.168.1.1:255.255.255.0 console=ttySAC0,115200 init=/linuxrc mem=64M 
+setenv bootargs noinitrd root=/dev/nfs rw nfsroot=192.168.1.113:/home/wu-being/linux/my_nfs ip=192.168.1.244:192.168.1.114:192.168.1.1:255.255.255.0 console=ttySAC0,115200 init=/linuxrc mem=64M 
+
+## ÄÚºË2.6.32 ##
+setenv bootcmd "tftp 32000000 uimage;bootm"
+setenv ipaddr 192.168.1.244
+setenv serverip 192.168.1.112
+setenv gatewayip 192.168.1.1
+setenv bootargs noinitrd root=/dev/nfs rw nfsroot=192.168.1.113:/home/wu-being/linux/2.6.32/rootfs_rtm_2440 ip=192.168.1.240:192.168.1.114:192.168.1.1:255.255.255.0 console=ttySAC0,115200 init=/linuxrc mem=64M 
+
+
+     device=eth0, addr=192.168.1.240, mask=255.255.255.0, gw=192.168.1.1,
+     host=192.168.1.244, domain=, nis-domain=(none),
+     bootserver=192.168.1.4, rootserver=192.168.1.3, rootpath=
+[root@FriendlyARM /]# ifconfig 
+eth0      Link encap:Ethernet  HWaddr 08:90:90:90:90:90  
+          inet addr:192.168.1.240  Bcast:192.168.1.255  Mask:255.255.255.0
+
+
+
