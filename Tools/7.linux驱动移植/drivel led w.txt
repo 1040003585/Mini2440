@@ -1,0 +1,54 @@
+/ # insmod qq2440_leds.ko 
+qq2440_leds: module license 'unspecified' taints kernel.
+leds can't register major number
+insmod: can't insert 'qq2440_leds.ko': Device or resource busy
+/ #
+
+
+
+Please press Enter to activate this console. 
+/ # ls
+bin      dev      etc      lib      linuxrc  my_ko    sbin     usr
+/ # ls dev/
+buttons   ide       mem       port      scsi      urandom
+console   input     misc      ptmx      shm       usb
+fb        kmem      mtdblock  pts       sound     vc
+full      kmsg      nbd       random    tts       vcc
+i2c       loop      null      rd        tty       zero
+/ # ls my_ko/
+qq2440_leds.ko
+/ # insmod my_ko/qq2440_leds.ko 
+qq2440_leds: module license 'unspecified' taints kernel.
+leds initialized
+/ # ls dev/
+buttons   ide       loop      null      rd        tty       zero
+console   input     mem       port      scsi      urandom
+fb        kmem      misc      ptmx      shm       usb
+full      kmsg      mtdblock  pts       sound     vc
+i2c       leds      nbd       random    tts       vcc
+/ # 
+
+
+
+Please press Enter to activate this console. 
+/ # ls
+bin      dev      etc      lib      linuxrc  my_ko    sbin     usr
+/ # ls dev/
+buttons   ide       mem       port      scsi      urandom
+console   input     misc      ptmx      shm       usb
+fb        kmem      mtdblock  pts       sound     vc
+full      kmsg      nbd       random    tts       vcc
+i2c       loop      null      rd        tty       zero
+/ # ls my_ko/
+qq2440_leds.ko
+/ # insmod my_ko/qq2440_leds.ko 
+leds initialized
+/ # insmod my_ko/qq2440_leds.ko 
+insmod: can't insert 'my_ko/qq2440_leds.ko': File exists
+/ # ls dev/
+buttons   ide       loop      null      rd        tty       zero
+console   input     mem       port      scsi      urandom
+fb        kmem      misc      ptmx      shm       usb
+full      kmsg      mtdblock  pts       sound     vc
+i2c       leds      nbd       random    tts       vcc
+/ # 

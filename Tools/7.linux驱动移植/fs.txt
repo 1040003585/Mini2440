@@ -1,0 +1,74 @@
+Linux 内核运行后，会在`dev/`目录自带生成一些设备文件。
+```
+Please press Enter to activate this console. 
+/ # ls
+a.out       etc         led_test    linuxrc     usr
+bin         hello       led_test.c  my_ko
+dev         hello.c     lib         sbin
+/ # ls dev/
+buttons   ide       mem       port      scsi      urandom
+console   input     misc      ptmx      shm       usb
+fb        kmem      mtdblock  pts       sound     vc
+full      kmsg      nbd       random    tts       vcc
+i2c       loop      null      rd        tty       zero
+/ # ls dev/ -l
+total 0
+crw-r-----    1 0        0         232,   0 Jan  1 00:00 buttons
+crw-------    1 0        0           5,   1 Jan  1 00:01 console
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 fb
+crw-rw-rw-    1 0        0           1,   7 Jan  1 00:00 full
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 i2c
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 ide
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 input
+crw-r-----    1 0        0           1,   2 Jan  1 00:00 kmem
+crw-r--r--    1 0        0           1,  11 Jan  1 00:00 kmsg
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 loop
+crw-r-----    1 0        0           1,   1 Jan  1 00:00 mem
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 misc
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 mtdblock
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 nbd
+crw-rw-rw-    1 0        0           1,   3 Jan  1 00:00 null
+crw-r-----    1 0        0           1,   4 Jan  1 00:00 port
+crw-rw-rw-    1 0        0           5,   2 Jan  1 00:00 ptmx
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 pts
+crw-r--r--    1 0        0           1,   8 Jan  1 00:00 random
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 rd
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 scsi
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 shm
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 sound
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 tts
+crw-rw-rw-    1 0        0           5,   0 Jan  1 00:00 tty
+crw-r--r--    1 0        0           1,   9 Jan  1 00:00 urandom
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 usb
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 vc
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 vcc
+crw-rw-rw-    1 0        0           1,   5 Jan  1 00:00 zero
+/ # ls dev/i
+i2c/    ide/    input/
+/ # ls dev/i2c/ -l
+total 0
+crw-------    1 0        0          89,   0 Jan  1 00:00 0
+/ # ls -l dev/input/
+total 0
+crw-r--r--    1 0        0          13,  64 Jan  1 00:00 event0
+crw-r--r--    1 0        0          13,  63 Jan  1 00:00 mice
+crw-r--r--    1 0        0          13,  32 Jan  1 00:00 mouse0
+crw-r--r--    1 0        0          13, 128 Jan  1 00:00 ts0
+crw-r--r--    1 0        0          13, 144 Jan  1 00:00 tsraw0
+/ # 
+```
+但实际的文件系统是没有这些设备文件的。
+```
+wuchengbing@ubuntu:~/linux$ mv my_nfs my_nfs2
+wuchengbing@ubuntu:~/linux$ mv my_nfs_wu/ my_nfs
+wuchengbing@ubuntu:~/linux$ ls my_nfs
+a.out  dev  hello    led_test    lib      my_ko  usr
+bin    etc  hello.c  led_test.c  linuxrc  sbin
+wuchengbing@ubuntu:~/linux$ ls my_nfs/dev/
+wuchengbing@ubuntu:~/linux$ ll my_nfs/dev/
+total 8
+drwxrwxr-x 2 wuchengbing wuchengbing 4096 Apr 17 18:41 ./
+drwxrwxr-x 9 wuchengbing wuchengbing 4096 Apr 17 21:15 ../
+wuchengbing@ubuntu:~/linux$ 
+```
+

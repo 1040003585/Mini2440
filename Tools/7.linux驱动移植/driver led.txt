@@ -1,0 +1,123 @@
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ make menuconfig
+
+ Device Drivers  --->  Character devices  ---> 
+  [*] S3C2410 RTC Driver                                         │ │  
+  <M> QQ2440/mini2440 LEDs Driver                                │ │  
+  <M> QQ2440/mini2440 PWM beeper Driver                          │ │  
+  <M> QQ2440/mini2440 Hello Module sample                        │ │  
+  <M> QQ2440 Buttons                         
+
+
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ gedit .config
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+CONFIG_S3C2410_RTC=y
+CONFIG_QQ2440_LEDS=m
+CONFIG_QQ2440_PWM_BEEPER=m
+CONFIG_QQ2440_HELLO_MODULE=m
+CONFIG_QQ2440_BUTTONS=m
+CONFIG_MINI2440_BUTTONS=y
+
+
+
+
+
+  LD      vmlinux
+  SYSMAP  System.map
+  SYSMAP  .tmp_System.map
+  OBJCOPY arch/arm/boot/Image
+  Kernel: arch/arm/boot/Image is ready
+  AS      arch/arm/boot/compressed/head.o
+  GZIP    arch/arm/boot/compressed/piggy.gz
+  AS      arch/arm/boot/compressed/piggy.o
+  CC      arch/arm/boot/compressed/misc.o
+  LD      arch/arm/boot/compressed/vmlinux
+  OBJCOPY arch/arm/boot/zImage
+  Kernel: arch/arm/boot/zImage is ready
+  Building modules, stage 2.
+  MODPOST
+  CC      drivers/char/mini2440_backlight.mod.o
+  LD [M]  drivers/char/mini2440_backlight.ko
+  CC      drivers/char/qq2440_buttons.mod.o
+  LD [M]  drivers/char/qq2440_buttons.ko
+  CC      drivers/char/qq2440_hello_module.mod.o
+  LD [M]  drivers/char/qq2440_hello_module.ko
+  CC      drivers/char/qq2440_leds.mod.o
+  LD [M]  drivers/char/qq2440_leds.ko
+  CC      drivers/char/qq2440_pwm.mod.o
+  LD [M]  drivers/char/qq2440_pwm.ko
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ 
+
+
+
+
+-rw-rw-r-- 1 wuchengbing wuchengbing   1368 Apr 17 20:38 qq2440_hello_module.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   4220 Apr 17 20:38 qq2440_buttons.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   2228 Apr 17 20:38 mini2440_backlight.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   3108 Apr 17 20:38 qq2440_pwm.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   1412 Apr 17 20:39 mini2440_backlight.mod.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   3107 Apr 17 20:39 mini2440_backlight.ko
+-rw-rw-r-- 1 wuchengbing wuchengbing   1408 Apr 17 20:39 qq2440_buttons.mod.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   5091 Apr 17 20:39 qq2440_buttons.ko
+-rw-rw-r-- 1 wuchengbing wuchengbing   1412 Apr 17 20:39 qq2440_hello_module.mod.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   2247 Apr 17 20:39 qq2440_hello_module.ko
+-rw-rw-r-- 1 wuchengbing wuchengbing   1404 Apr 17 20:39 qq2440_leds.mod.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   3133 Apr 17 20:39 qq2440_leds.ko
+-rw-rw-r-- 1 wuchengbing wuchengbing   1404 Apr 17 20:39 qq2440_pwm.mod.o
+-rw-rw-r-- 1 wuchengbing wuchengbing   3957 Apr 17 20:39 qq2440_pwm.ko
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ 
+
+
+
+
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ cd arch/arm/boot/
+wuchengbing@ubuntu:~/linux/kernel-2.6.13/arch/arm/boot$ ./mkimage.sh 
+Image Name:   linux-2.6.13
+Created:      Mon Apr 17 20:33:08 2017
+Image Type:   ARM Linux Kernel Image (uncompressed)
+Data Size:    1537008 Bytes = 1500.98 kB = 1.47 MB
+Load Address: 0x30008000
+Entry Point:  0x30008040
+wuchengbing@ubuntu:~/linux/kernel-2.6.13/arch/arm/boot$ 
+
+
+
+
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ cp drivers/char/qq2440_leds.ko ../my_nfs/my_ko/
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ ls ../my_nfs/my_ko/
+mini2440_backlight.ko  qq2440_hello_module.ko  qq2440_pwm.ko
+qq2440_buttons.ko      qq2440_leds.ko
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ ls ../my_nfs/my_ko/ -l
+total 24
+-rw-rw-r-- 1 wuchengbing wuchengbing 3133 Apr 17 20:41 qq2440_leds.ko
+wuchengbing@ubuntu:~/linux/kernel-2.6.13$ 
+
+
+
+
+module_init(qq2440_leds_init);
+module_exit(qq2440_leds_exit);
+
+MODULE_LICENSE("GPL"); 
+
+
+
+
+wuchengbing@ubuntu:~/linux/my_nfs$ l
+bin/  dev/  etc/  led_test.c*  lib/  linuxrc@  my_ko/  sbin/  usr/
+wuchengbing@ubuntu:~/linux/my_nfs$ arm-linux-gcc led_test.c 
+cc1: error: led_test.c: Permission denied
+wuchengbing@ubuntu:~/linux/my_nfs$ chmod 755 led_test.c 
+chmod: changing permissions of 'led_test.c': Operation not permitted
+wuchengbing@ubuntu:~/linux/my_nfs$ sudo chmod 755 led_test.c 
+wuchengbing@ubuntu:~/linux/my_nfs$ arm-linux-gcc led_test.c 
+wuchengbing@ubuntu:~/linux/my_nfs$ l
+a.out*  bin/  dev/  etc/  led_test.c*  lib/  linuxrc@  my_ko/  sbin/  usr/
+wuchengbing@ubuntu:~/linux/my_nfs$ 
+
+
+
+
+
+
