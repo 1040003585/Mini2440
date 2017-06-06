@@ -402,12 +402,91 @@ init_mount_tree()(fs/namespace.c)
 **问题：**在上面的图中，如何建立一个目录，如何装载(mount)一个新的文件系统？
 ##2.3文件系统和进程的联系
  ![这里写图片描述](http://img.blog.csdn.net/20170606114527456?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxNDEzNDE4MA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+##2.4设备文件
+Linux 内核运行后，会在`dev/`目录自带生成一些设备文件。
+```
+Please press Enter to activate this console. 
+/ # ls
+a.out       etc         led_test    linuxrc     usr
+bin         hello       led_test.c  my_ko
+dev         hello.c     lib         sbin
+/ # ls dev/
+buttons   ide       mem       port      scsi      urandom
+console   input     misc      ptmx      shm       usb
+fb        kmem      mtdblock  pts       sound     vc
+full      kmsg      nbd       random    tts       vcc
+i2c       loop      null      rd        tty       zero
+/ # ls dev/ -l
+total 0
+crw-r-----    1 0        0         232,   0 Jan  1 00:00 buttons
+crw-------    1 0        0           5,   1 Jan  1 00:01 console
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 fb
+crw-rw-rw-    1 0        0           1,   7 Jan  1 00:00 full
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 i2c
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 ide
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 input
+crw-r-----    1 0        0           1,   2 Jan  1 00:00 kmem
+crw-r--r--    1 0        0           1,  11 Jan  1 00:00 kmsg
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 loop
+crw-r-----    1 0        0           1,   1 Jan  1 00:00 mem
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 misc
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 mtdblock
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 nbd
+crw-rw-rw-    1 0        0           1,   3 Jan  1 00:00 null
+crw-r-----    1 0        0           1,   4 Jan  1 00:00 port
+crw-rw-rw-    1 0        0           5,   2 Jan  1 00:00 ptmx
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 pts
+crw-r--r--    1 0        0           1,   8 Jan  1 00:00 random
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 rd
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 scsi
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 shm
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 sound
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 tts
+crw-rw-rw-    1 0        0           5,   0 Jan  1 00:00 tty
+crw-r--r--    1 0        0           1,   9 Jan  1 00:00 urandom
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 usb
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 vc
+drwxr-xr-x    1 0        0                0 Jan  1 00:00 vcc
+crw-rw-rw-    1 0        0           1,   5 Jan  1 00:00 zero
+/ # ls dev/i
+i2c/    ide/    input/
+/ # ls dev/i2c/ -l
+total 0
+crw-------    1 0        0          89,   0 Jan  1 00:00 0
+/ # ls -l dev/input/
+total 0
+crw-r--r--    1 0        0          13,  64 Jan  1 00:00 event0
+crw-r--r--    1 0        0          13,  63 Jan  1 00:00 mice
+crw-r--r--    1 0        0          13,  32 Jan  1 00:00 mouse0
+crw-r--r--    1 0        0          13, 128 Jan  1 00:00 ts0
+crw-r--r--    1 0        0          13, 144 Jan  1 00:00 tsraw0
+/ # 
+```
+但实际的文件系统是没有这些设备文件的。
+```
+wuchengbing@ubuntu:~/linux$ mv my_nfs my_nfs2
+wuchengbing@ubuntu:~/linux$ mv my_nfs_wu/ my_nfs
+wuchengbing@ubuntu:~/linux$ ls my_nfs
+a.out  dev  hello    led_test    lib      my_ko  usr
+bin    etc  hello.c  led_test.c  linuxrc  sbin
+wuchengbing@ubuntu:~/linux$ ls my_nfs/dev/
+wuchengbing@ubuntu:~/linux$ ll my_nfs/dev/
+total 8
+drwxrwxr-x 2 wuchengbing wuchengbing 4096 Apr 17 18:41 ./
+drwxrwxr-x 9 wuchengbing wuchengbing 4096 Apr 17 21:15 ../
+wuchengbing@ubuntu:~/linux$ 
+```
+
 #3Kernel 启动过程和文件系统
 Kernel 启动过程中，初始化硬件和各种数据结构，并加载文件系统，进入用户态，运行文件系统中的程序，这个过程简述如下。Exec 函数族(execve 为其中一种)提供了一个在进程中启动另外一个程序执行的方法。它可以根据指定的文件名或目录找到可执行文件，并用它来取代原先调用进程的属性包括数据段，代码段和堆栈段等。在执行完之后，原调用进程的内容除了进程号外，其他全部被新的进程替换了。这里在执行execve 之前，进程1 还是共享着内核线程0 资源属性的内核线程。执行execve 后(即执行了用户空间的init 程序)，此时，进程1 就拥有了自己的地址空间等属性，成为一个普通进程。
 Fork
 Init()--->call----->/etc/inittab------> /etc/rcS -------->login ----run shell
 
 
+#附录
+
+工具下载链接： 
+https://github.com/1040003585/Mini24
 
 
 **Wu_Being 博客声明**：本人博客欢迎转载，请标明博客原文和原链接！谢谢！ 
